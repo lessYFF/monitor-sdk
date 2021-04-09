@@ -1,0 +1,30 @@
+{
+  "name": "monitor",
+  "version": "1.0.0",
+  "description": "sdk of monitor",
+  "main": "dist/index.js",
+  "module": "dist/index.moudle.js",
+  "unpkg": "dist/index.umd.js",
+  "types": "dist/typings/index.d.ts",
+  "source": "src/index.ts",
+  "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "api:init": "api-extractor init",
+    "api:run": "api-extractor run  --local --verbose",
+    "api:doc": "typedoc --out doc src",
+    "example:run": "parcel examples/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "monitor"
+  ],
+  "author": "Bruce yan",
+  "license": "ISC",
+  "devDependencies": {
+    "@microsoft/api-extractor": "^7.13.2",
+    "microbundle": "^0.13.0",
+    "parcel-bundler": "^1.12.5",
+    "typedoc": "^0.20.32"
+  }
+}
