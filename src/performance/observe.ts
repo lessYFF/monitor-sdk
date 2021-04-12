@@ -1,5 +1,5 @@
 import { YPerObservers, YPerformanceObserverType } from '../typings';
-import { C } from '../data';
+import { C } from '../data/constants';
 
 class PerformanceObserve {
     private perfObserveMap: YPerObservers;

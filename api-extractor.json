@@ -20,7 +20,7 @@
   },
   "dtsRollup": {
     "enabled": true,
-    "untrimmedFilePath": "<projectFolder>/dist/typings/<unscopedPackageName>.d.ts",
+    "untrimmedFilePath": "<projectFolder>/lib/typings/<unscopedPackageName>.d.ts",
     "omitTrimmingComments": true
   },
   "tsdocMetadata": {

@@ -3,7 +3,7 @@
  * @param isPerformanceTiming - 是否开启性能监控
  * @param isResoureTiming - 是否开启资源监控
  * @param isErrorCapture - 是否开启异常监控
- * @param maxMeasureTime - 最大请求时间
+ * @param maxMeasureTime - 最大监控时间
  * @param upUrl - 上报url
  * @param analyticsTracker - 监控方法
  */

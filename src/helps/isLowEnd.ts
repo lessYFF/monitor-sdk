@@ -1,5 +1,5 @@
 import { EffectiveConnectionType } from '../typings';
-import { WNav, getCpu, getMem } from "../data";
+import { WNav, getCpu, getMem } from "../data/constants";
 
 // 是否低等级设备
 export const isLowEndDevice = function(): boolean {

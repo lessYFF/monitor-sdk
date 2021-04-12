@@ -1,4 +1,4 @@
-import { W } from '../data';
+import { W } from '../data/constants';
 
 /**
  * pushTask - 将任务推入主线程空闲队列

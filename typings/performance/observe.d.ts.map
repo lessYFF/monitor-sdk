@@ -1,0 +1,1 @@
+{"version":3,"file":"observe.d.ts","sourceRoot":"","sources":["../../../src/performance/observe.ts"],"names":[],"mappings":"AAAA,OAAO,EAAiB,wBAAwB,EAAE,MAAM,YAAY,CAAC;AAGrE,cAAM,kBAAkB;IACpB,OAAO,CAAC,cAAc,CAAgB;;IAOtC,SAAS,CAAC,WAAW,EAAE,wBAAwB,EAAE,EAAE,EAAE,CAAC,IAAI,EAAE,GAAG,EAAE,KAAK,IAAI;IAe1E,YAAY,CAAC,WAAW,EAAE,GAAG;CAMhC;AAED,eAAO,MAAM,mBAAmB,oBAA2B,CAAC"}

@@ -1,5 +1,5 @@
 import { YNavigatorInfo } from "../typings";
-import { WNav, getMem, getCpu } from '../data';
+import { WNav, getMem, getCpu } from '../data/constants';
 import { isLowEndDevice, isLowEndExperience } from './isLowEnd';
 
 /**

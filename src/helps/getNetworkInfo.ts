@@ -1,5 +1,5 @@
 import { YNetworkInfo } from "../typings";
-import { WNav } from '../data';
+import { WNav } from '../data/constants';
 
 export const getNetworkInfo = function():YNetworkInfo  {
     if ('connection' in WNav) {

@@ -2,23 +2,24 @@
   "name": "monitor",
   "version": "1.0.0",
   "description": "sdk of monitor",
-  "main": "dist/index.js",
-  "module": "dist/index.moudle.js",
-  "unpkg": "dist/index.umd.js",
-  "types": "dist/typings/index.d.ts",
+  "main": "lib/index.js",
+  "module": "lib/index.moudle.js",
+  "unpkg": "lib/index.umd.js",
+  "types": "lib/typings/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
-    "build": "microbundle",
+    "build": "microbundle -o lib",
     "dev": "microbundle watch",
     "api:init": "api-extractor init",
     "api:run": "api-extractor run  --local --verbose",
     "api:doc": "typedoc --out doc src",
-    "example:run": "parcel examples/index.html",
+    "example": "parcel examples/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "monitor"
   ],
+  "files": ["lib"],
   "author": "Bruce yan",
   "license": "ISC",
   "devDependencies": {
@@ -26,5 +27,8 @@
     "microbundle": "^0.13.0",
     "parcel-bundler": "^1.12.5",
     "typedoc": "^0.20.32"
+  },
+  "dependencies": {
+    "rrweb": "^0.9.14"
   }
 }

@@ -1,4 +1,4 @@
-import { WPer, WNav, W, D } from '../data';
+import { WPer, WNav, W, D } from '../data/constants';
 
 /**
  * True if the browser supports the Navigation Timing API,
