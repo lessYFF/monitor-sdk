@@ -3,8 +3,8 @@ import {
 } from '../../src';
 
 const Test = new YMonitor({
-    upUrl: 'http://123.com/test'
-});
+    upUrl: 'http://localhost:3000/error/report',
+})
 console.log('YMonitor', Test);
 
 // 模拟一个长任务

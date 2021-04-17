@@ -23,7 +23,7 @@ export default class ErrorTrace {
 
                 _this.recordEvents.push(event)
             },
-            checkoutEveryNth: 100, // 每 100个event 重新制作快照
+            checkoutEveryNth: 1000, // 每 100个event 重新制作快照
             checkoutEveryNms: 5 * 60 * 1000, // 每5分钟重新制作快照
         })
     }
@@ -39,7 +39,7 @@ export default class ErrorTrace {
                 colno,
                 error,
                 type: ErrorType[1],
-                record: this.recordEvents.slice(-2),
+                record: this.recordEvents.slice(-100),
             })
             config.report.sendToAnalytics(AskPriority.IDLE, errorInfo)
             return true
@@ -56,7 +56,7 @@ export default class ErrorTrace {
             const errorInfo = JSON.stringify({
                 e,
                 type: ErrorType[2],
-                record: _this.recordEvents.slice(-2),
+                record: _this.recordEvents.slice(-100),
             })
             config.report.sendToAnalytics(AskPriority.IDLE, errorInfo)
             return true
@@ -74,7 +74,7 @@ export default class ErrorTrace {
                     const errorInfo = JSON.stringify({
                         e,
                         type: ErrorType[2],
-                        record: _this.recordEvents.slice(-2),
+                        record: _this.recordEvents.slice(-100),
                     })
                     config.report.sendToAnalytics(AskPriority.IDLE, errorInfo)
                 }

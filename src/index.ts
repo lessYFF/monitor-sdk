@@ -42,7 +42,7 @@ export class YMonitor {
     // 初始化性能监控
     initPerformanceMonitor(args: YMonitorConfig) {
         //如果浏览器不支持性能指标或者未开启则放弃
-        if (!isPerformanceSupported() || !args.isPerformanceTiming) return
+        if (!isPerformanceSupported() || !args.isPerformanceTrace) return
 
         //浏览器支持的起FRP这样的Observer统计性能
         initPerformanceTraceEntry()

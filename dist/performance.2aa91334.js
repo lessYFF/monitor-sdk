@@ -520,9 +520,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.config = void 0;
 var config = {
-  isPerformanceTiming: true,
-  isResoureTiming: true,
+  isPerformanceTrace: true,
   isErrorCapture: true,
+  isResoureTiming: true,
+  isElementTiming: true,
   maxTime: 15000,
   report: null,
   analyticsTracker: null
@@ -846,30 +847,7 @@ var PerformanceObserve = /*#__PURE__*/function () {
 
 var performanceObserver = new PerformanceObserve();
 exports.performanceObserver = performanceObserver;
-},{"../data/constants":"../src/data/constants.ts"}],"../src/performance/paint.ts":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.initPaint = void 0;
-
-var _data = require("../data");
-
-// 初始化首次绘制
-var initPaint = function initPaint(performanceEntries) {
-  performanceEntries.forEach(function (entry) {
-    if (entry.name === 'first-paint') {
-      (0, _data.logMetric)('fp', entry.startTime);
-    } else if (entry.name === 'first-contentful-paint') {
-      _data.metrics.fcp = entry.startTime;
-      (0, _data.logMetric)('fcp', _data.metrics.fcp);
-    }
-  });
-};
-
-exports.initPaint = initPaint;
-},{"../data":"../src/data/index.ts"}],"../src/performance/navigationTiming.ts":[function(require,module,exports) {
+},{"../data/constants":"../src/data/constants.ts"}],"../src/performance/navigationTiming.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -951,7 +929,151 @@ var getStorageEstimate = function getStorageEstimate(storageInfo) {
 };
 
 exports.getStorageEstimate = getStorageEstimate;
-},{"../data":"../src/data/index.ts","../helps":"../src/helps/index.ts"}],"../src/performance/performanceEntry.ts":[function(require,module,exports) {
+},{"../data":"../src/data/index.ts","../helps":"../src/helps/index.ts"}],"../src/performance/resourceTiming.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initResourceTiming = void 0;
+
+var _data = require("../data");
+
+var _config = require("../config");
+
+// 初始化资源时间
+var initResourceTiming = function initResourceTiming(performanceEntries) {
+  performanceEntries.forEach(function (entry) {
+    if (_config.config.isResoureTiming) {
+      (0, _data.logInfo)('resourceTiming', entry);
+    }
+
+    if (entry.decodedBodySize && entry.initiatorType) {
+      var bodySize = entry.decodedBodySize / 1000;
+      _data.rt.value[entry.initiatorType] += bodySize;
+      _data.rt.value.total += bodySize;
+    }
+  });
+};
+
+exports.initResourceTiming = initResourceTiming;
+},{"../data":"../src/data/index.ts","../config":"../src/config/index.ts"}],"../src/performance/firstInputDelay.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initFirstInputDelay = void 0;
+
+var _data = require("../data");
+
+var _observe = require("./observe");
+
+// 初始化首次输入延迟
+var initFirstInputDelay = function initFirstInputDelay(performanceEntries) {
+  var lastEntry = performanceEntries.pop();
+
+  if (lastEntry) {
+    // 传统fid测量
+    (0, _data.logMetric)('fid', lastEntry.duration, {
+      performanceEntries: lastEntry
+    });
+    (0, _data.logMetric)('fidVitals', lastEntry.processingStart - lastEntry.startTime, {
+      performanceEntries: lastEntry
+    });
+  }
+
+  _observe.performanceObserver.poDisconnect('first-input');
+
+  (0, _data.logMetric)('tbt', _data.metrics.tbt);
+  (0, _data.logMetric)('cls', _data.metrics.cls); // TBT with 5 second delay after FID
+
+  setTimeout(function () {
+    (0, _data.logMetric)('tbt5S', _data.metrics.tbt);
+  }, 5000); // TBT with 10 second delay after FID
+
+  setTimeout(function () {
+    (0, _data.logMetric)('tbt10S', _data.metrics.tbt); //FID被激活以后10S的整体数据消耗
+
+    (0, _data.logInfo)('consumptionInfo', _data.rt.value);
+  }, 10000);
+};
+
+exports.initFirstInputDelay = initFirstInputDelay;
+},{"../data":"../src/data/index.ts","./observe":"../src/performance/observe.ts"}],"../src/performance/cumulativeLayoutShift.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initCumulativeLayoutShift = void 0;
+
+var _data = require("../data");
+
+// 初始化累计位移偏移
+var initCumulativeLayoutShift = function initCumulativeLayoutShift(performanceEntries) {
+  var lastEntry = performanceEntries.pop();
+
+  if (lastEntry && !lastEntry.hadRecentInput && lastEntry.value) {
+    _data.metrics.cls += lastEntry.value;
+    (0, _data.logMetric)('cls', _data.metrics.cls);
+  }
+};
+
+exports.initCumulativeLayoutShift = initCumulativeLayoutShift;
+},{"../data":"../src/data/index.ts"}],"../src/performance/paint.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initElementTiming = exports.initLargestContentfulPaint = exports.initPaint = void 0;
+
+var _data = require("../data");
+
+var _observe = require("./observe");
+
+// 初始化首次绘制
+var initPaint = function initPaint(performanceEntries) {
+  performanceEntries.some(function (entry) {
+    if (entry.name === 'first-paint') {
+      (0, _data.logMetric)('fp', entry.startTime);
+      return true;
+    } else if (entry.name === 'first-contentful-paint') {
+      _data.metrics.fcp = entry.startTime;
+      (0, _data.logMetric)('fcp', _data.metrics.fcp);
+      return true;
+    }
+  }); // 解除监听
+
+  _observe.performanceObserver.poDisconnect('paint');
+}; // 初始化最大内容绘制
+
+
+exports.initPaint = initPaint;
+
+var initLargestContentfulPaint = function initLargestContentfulPaint(performanceEntries) {
+  var lastEntry = performanceEntries.pop();
+
+  if (lastEntry) {
+    _data.metrics.lcp = lastEntry.renderTime || lastEntry.loadTime;
+    (0, _data.logMetric)('lcp', _data.metrics.lcp);
+  }
+}; // 初始化元素渲染时间
+
+
+exports.initLargestContentfulPaint = initLargestContentfulPaint;
+
+var initElementTiming = function initElementTiming(performanceEntries) {
+  performanceEntries.some(function (entry) {
+    if (entry.identifier) {
+      (0, _data.logMetric)(entry.identifier, entry.startTime);
+    }
+  });
+};
+
+exports.initElementTiming = initElementTiming;
+},{"../data":"../src/data/index.ts","./observe":"../src/performance/observe.ts"}],"../src/performance/performanceEntry.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -959,17 +1081,25 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.disconnectPerformanceObserveHidden = exports.initPerformanceTraceEntry = void 0;
 
+var _config = require("../config");
+
 var _helps = require("../helps");
 
 var _data = require("../data");
 
 var _observe = require("./observe");
 
-var _paint = require("./paint");
-
 var _navigationTiming = require("./navigationTiming");
 
 var _storageEstimate = require("./storageEstimate");
+
+var _resourceTiming = require("./resourceTiming");
+
+var _firstInputDelay = require("./firstInputDelay");
+
+var _cumulativeLayoutShift = require("./cumulativeLayoutShift");
+
+var _paint = require("./paint");
 
 var _this = void 0;
 
@@ -977,16 +1107,21 @@ var _this = void 0;
 var initPerformanceObserver = function initPerformanceObserver() {
   console.log('⏰ 性能收集开始', Math.random());
 
-  _observe.performanceObserver.poConnect('paint', _paint.initPaint); // performanceObserver.poConnect('first-input-delay', initFirstInputDelay);
-  // performanceObserver.poConnect('largest-contentful-paint', initLargestContentfulPaint);
-  // performanceObserver.poConnect('cumulative-layout-shift', initCumulativeLayoutShift);
-  // if (config.isResoureTiming) {
-  //     performanceObserver.poConnect('resource', initResource);
-  // }
-  // if (config.isPerformanceTiming) {
-  //     performanceObserver.poConnect('element', initElement);
-  // }
+  _observe.performanceObserver.poConnect('paint', _paint.initPaint);
 
+  _observe.performanceObserver.poConnect('first-input', _firstInputDelay.initFirstInputDelay);
+
+  _observe.performanceObserver.poConnect('layout-shift', _cumulativeLayoutShift.initCumulativeLayoutShift);
+
+  _observe.performanceObserver.poConnect('largest-contentful-paint', _paint.initLargestContentfulPaint);
+
+  if (_config.config.isResoureTiming) {
+    _observe.performanceObserver.poConnect('resource', _resourceTiming.initResourceTiming);
+  }
+
+  if (_config.config.isElementTiming) {
+    _observe.performanceObserver.poConnect('element', _paint.initElementTiming);
+  }
 }; // 根据相关检测指标解除监听
 
 
@@ -994,8 +1129,6 @@ var disconnectPerformanceObserve = function disconnectPerformanceObserve(args) {
   var list = Array.isArray(args) ? args : [args];
   list.forEach(function (metric) {
     _observe.performanceObserver.poDisconnect(metric);
-
-    (0, _data.logMetric)(metric, _data.metrics[metric]);
   });
 }; // 初始化性能监控
 
@@ -1020,11 +1153,11 @@ var initPerformanceTraceEntry = function initPerformanceTraceEntry() {
 exports.initPerformanceTraceEntry = initPerformanceTraceEntry;
 
 var disconnectPerformanceObserveHidden = function disconnectPerformanceObserveHidden() {
-  disconnectPerformanceObserve(['paint']);
+  disconnectPerformanceObserve(['paint', 'element', 'largest-contentful-paint', 'resource', 'layout-shift', 'first-input']);
 };
 
 exports.disconnectPerformanceObserveHidden = disconnectPerformanceObserveHidden;
-},{"../helps":"../src/helps/index.ts","../data":"../src/data/index.ts","./observe":"../src/performance/observe.ts","./paint":"../src/performance/paint.ts","./navigationTiming":"../src/performance/navigationTiming.ts","./storageEstimate":"../src/performance/storageEstimate.ts"}],"../src/performance/index.ts":[function(require,module,exports) {
+},{"../config":"../src/config/index.ts","../helps":"../src/helps/index.ts","../data":"../src/data/index.ts","./observe":"../src/performance/observe.ts","./navigationTiming":"../src/performance/navigationTiming.ts","./storageEstimate":"../src/performance/storageEstimate.ts","./resourceTiming":"../src/performance/resourceTiming.ts","./firstInputDelay":"../src/performance/firstInputDelay.ts","./cumulativeLayoutShift":"../src/performance/cumulativeLayoutShift.ts","./paint":"../src/performance/paint.ts"}],"../src/performance/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3248,7 +3381,7 @@ var ErrorTrace = /*#__PURE__*/function () {
 
           _this.recordEvents.push(event);
         },
-        checkoutEveryNth: 100,
+        checkoutEveryNth: 1000,
         checkoutEveryNms: 5 * 60 * 1000 // 每5分钟重新制作快照
 
       });
@@ -3268,7 +3401,7 @@ var ErrorTrace = /*#__PURE__*/function () {
           colno: colno,
           error: error,
           type: _typings.ErrorType[1],
-          record: _this2.recordEvents.slice(-2)
+          record: _this2.recordEvents.slice(-100)
         });
 
         _config.config.report.sendToAnalytics(_typings.AskPriority.IDLE, errorInfo);
@@ -3289,7 +3422,7 @@ var ErrorTrace = /*#__PURE__*/function () {
         var errorInfo = JSON.stringify({
           e: e,
           type: _typings.ErrorType[2],
-          record: _this.recordEvents.slice(-2)
+          record: _this.recordEvents.slice(-100)
         });
 
         _config.config.report.sendToAnalytics(_typings.AskPriority.IDLE, errorInfo);
@@ -3309,7 +3442,7 @@ var ErrorTrace = /*#__PURE__*/function () {
           var errorInfo = JSON.stringify({
             e: e,
             type: _typings.ErrorType[2],
-            record: _this.recordEvents.slice(-2)
+            record: _this.recordEvents.slice(-100)
           });
 
           _config.config.report.sendToAnalytics(_typings.AskPriority.IDLE, errorInfo);
@@ -3404,7 +3537,7 @@ var YMonitor = /*#__PURE__*/function () {
     key: "initPerformanceMonitor",
     value: function initPerformanceMonitor(args) {
       //如果浏览器不支持性能指标或者未开启则放弃
-      if (!(0, _helps.isPerformanceSupported)() || !args.isPerformanceTiming) return; //浏览器支持的起FRP这样的Observer统计性能
+      if (!(0, _helps.isPerformanceSupported)() || !args.isPerformanceTrace) return; //浏览器支持的起FRP这样的Observer统计性能
 
       (0, _performance.initPerformanceTraceEntry)();
     }
@@ -3420,7 +3553,7 @@ exports.YMonitor = YMonitor;
 var _src = require("../../src");
 
 var Test = new _src.YMonitor({
-  upUrl: 'http://123.com/test'
+  upUrl: 'http://localhost:3000/error/report'
 });
 console.log('YMonitor', Test); // 模拟一个长任务
 
@@ -3455,7 +3588,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49904" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53640" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
