@@ -3396,12 +3396,14 @@ var ErrorTrace = /*#__PURE__*/function () {
         console.log('[ ❌全局捕获错误 ]', error); //通过错误信息还原sourcemap源文件地址
 
         var errorInfo = JSON.stringify({
-          source: source,
-          lineno: lineno,
-          colno: colno,
-          error: error,
+          info: {
+            source: source,
+            lineno: lineno,
+            colno: colno,
+            error: error
+          },
           type: _typings.ErrorType[1],
-          record: _this2.recordEvents.slice(-100)
+          record: _this2.recordEvents.slice(-50)
         });
 
         _config.config.report.sendToAnalytics(_typings.AskPriority.IDLE, errorInfo);
@@ -3416,13 +3418,15 @@ var ErrorTrace = /*#__PURE__*/function () {
       var _this = this;
 
       _data.W.addEventListener('unhandledrejection', function (e) {
+        // 上报primise异常
+        e.preventDefault();
         console.log('[ ❌promise捕获错误 ]', e);
-        e.preventDefault(); // 上报primise异常
-
         var errorInfo = JSON.stringify({
-          e: e,
           type: _typings.ErrorType[2],
-          record: _this.recordEvents.slice(-100)
+          info: {
+            type: e.type,
+            reason: e.reason
+          }
         });
 
         _config.config.report.sendToAnalytics(_typings.AskPriority.IDLE, errorInfo);
@@ -3438,11 +3442,13 @@ var ErrorTrace = /*#__PURE__*/function () {
 
       _data.W.addEventListener('error', function (e) {
         if (e.target !== _data.W) {
-          console.log('[ ❌资源请求捕获错误 ]', e.target);
+          console.log('[ ❌资源请求捕获错误 ]', e);
           var errorInfo = JSON.stringify({
-            e: e,
-            type: _typings.ErrorType[2],
-            record: _this.recordEvents.slice(-100)
+            info: {
+              type: e.type,
+              reason: e.target.outerHTML
+            },
+            type: _typings.ErrorType[2]
           });
 
           _config.config.report.sendToAnalytics(_typings.AskPriority.IDLE, errorInfo);
@@ -3575,7 +3581,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53640" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59183" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

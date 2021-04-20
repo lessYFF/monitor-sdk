@@ -3,7 +3,7 @@ import {
 } from '../../src';
 
 const Test = new YMonitor({
-    upUrl: 'http://localhost:3000/error/report',
+    upUrl: 'http://localhost:3000/api/error',
 })
 console.log('YMonitor', Test);
 

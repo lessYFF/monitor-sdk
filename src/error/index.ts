@@ -34,12 +34,14 @@ export default class ErrorTrace {
             console.log('[ ❌全局捕获错误 ]', error)
             //通过错误信息还原sourcemap源文件地址
             const errorInfo = JSON.stringify({
-                source,
-                lineno,
-                colno,
-                error,
+                info: {
+                    source,
+                    lineno,
+                    colno,
+                    error,
+                },
                 type: ErrorType[1],
-                record: this.recordEvents.slice(-100),
+                record: this.recordEvents.slice(-50),
             })
             config.report.sendToAnalytics(AskPriority.IDLE, errorInfo)
             return true
@@ -50,13 +52,12 @@ export default class ErrorTrace {
     private promiseError() {
         const _this = this;
         W.addEventListener('unhandledrejection', function (e) {
-            console.log('[ ❌promise捕获错误 ]', e)
-            e.preventDefault()
             // 上报primise异常
+            e.preventDefault()
+            console.log('[ ❌promise捕获错误 ]', e)
             const errorInfo = JSON.stringify({
-                e,
                 type: ErrorType[2],
-                record: _this.recordEvents.slice(-100),
+                info: { type: e.type, reason: e.reason },
             })
             config.report.sendToAnalytics(AskPriority.IDLE, errorInfo)
             return true
@@ -70,11 +71,10 @@ export default class ErrorTrace {
             'error',
             function (e: ErrorEvent) {
                 if (e.target !== W) {
-                    console.log('[ ❌资源请求捕获错误 ]', e.target)
+                    console.log('[ ❌资源请求捕获错误 ]', e)
                     const errorInfo = JSON.stringify({
-                        e,
+                        info: { type: e.type, reason: (e.target as any).outerHTML },
                         type: ErrorType[2],
-                        record: _this.recordEvents.slice(-100),
                     })
                     config.report.sendToAnalytics(AskPriority.IDLE, errorInfo)
                 }
