@@ -23,7 +23,7 @@ export default class ErrorTrace {
 
                 _this.recordEvents.push(event)
             },
-            checkoutEveryNth: 1000, // 每 100个event 重新制作快照
+            checkoutEveryNth: 100, // 每 100个event 重新制作快照
             checkoutEveryNms: 5 * 60 * 1000, // 每5分钟重新制作快照
         })
     }
@@ -52,9 +52,9 @@ export default class ErrorTrace {
     private promiseError() {
         const _this = this;
         W.addEventListener('unhandledrejection', function (e) {
+            console.log('[ ❌promise捕获错误 ]', e)
             // 上报primise异常
             e.preventDefault()
-            console.log('[ ❌promise捕获错误 ]', e)
             const errorInfo = JSON.stringify({
                 type: ErrorType[2],
                 info: { type: e.type, reason: e.reason },

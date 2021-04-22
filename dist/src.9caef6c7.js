@@ -3381,7 +3381,7 @@ var ErrorTrace = /*#__PURE__*/function () {
 
           _this.recordEvents.push(event);
         },
-        checkoutEveryNth: 1000,
+        checkoutEveryNth: 100,
         checkoutEveryNms: 5 * 60 * 1000 // 每5分钟重新制作快照
 
       });
@@ -3418,9 +3418,9 @@ var ErrorTrace = /*#__PURE__*/function () {
       var _this = this;
 
       _data.W.addEventListener('unhandledrejection', function (e) {
-        // 上报primise异常
+        console.log('[ ❌promise捕获错误 ]', e); // 上报primise异常
+
         e.preventDefault();
-        console.log('[ ❌promise捕获错误 ]', e);
         var errorInfo = JSON.stringify({
           type: _typings.ErrorType[2],
           info: {
@@ -3581,7 +3581,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59183" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49397" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

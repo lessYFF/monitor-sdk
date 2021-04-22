@@ -1,5 +1,5 @@
 {
-  "name": "monitor",
+  "name": "frontend-monitor",
   "version": "1.0.0",
   "description": "sdk of monitor",
   "main": "lib/index.js",
