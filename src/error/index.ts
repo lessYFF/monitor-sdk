@@ -30,14 +30,14 @@ export default class ErrorTrace {
 
     // 监控全局同步和异步的异常
     private grobalError() {
-        W.onerror = (event: Event, source?: string, lineno?: number, colno?: number, error?: Error): boolean => {
+        W.onerror = (event: Event, source?: string, lineNo?: number, colNo?: number, error?: Error): boolean => {
             console.log('[ ❌全局捕获错误 ]', error)
             //通过错误信息还原sourcemap源文件地址
             const errorInfo = JSON.stringify({
                 info: {
                     source,
-                    lineno,
-                    colno,
+                    lineNo,
+                    colNo,
                     error,
                 },
                 type: ErrorType[1],

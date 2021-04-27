@@ -3392,14 +3392,14 @@ var ErrorTrace = /*#__PURE__*/function () {
     value: function grobalError() {
       var _this2 = this;
 
-      _data.W.onerror = function (event, source, lineno, colno, error) {
+      _data.W.onerror = function (event, source, lineNo, colNo, error) {
         console.log('[ ❌全局捕获错误 ]', error); //通过错误信息还原sourcemap源文件地址
 
         var errorInfo = JSON.stringify({
           info: {
             source: source,
-            lineno: lineno,
-            colno: colno,
+            lineNo: lineNo,
+            colNo: colNo,
             error: error
           },
           type: _typings.ErrorType[1],
@@ -3594,7 +3594,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49397" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60386" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
